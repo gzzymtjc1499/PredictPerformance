@@ -11,7 +11,8 @@ This is the simulation Part of the study.
 2. Run `Combined_Loop.R` to run the simulation for multiple times.
 
   
-**Notes**
+**Notes**  
+
 The results and further analysis (drawing plots, performing ANOVA) can be seen from the Analysis folder.
 
   
