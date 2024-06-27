@@ -7,7 +7,7 @@ This is the simulation Part of the study.
 
   
 **Run the simulation**
-1. Run `DataGeneration.R` to generate the simulated dataset. The datasets in our study are documented in `DATA.zip`.
+1. Run `DataGeneration.R` to generate the simulated dataset.
 2. Run `Combined_Loop.R` to run the simulation for multiple times.
 
   
