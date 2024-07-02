@@ -10,6 +10,33 @@ load("simulation_results_0.RData")
 load("simulation_results_1.RData")
 load("simulation_results_20000.RData")
 
+# Part 0. ANOVA in total
+library(reshape2)
+library(dplyr)
+library(lme4)
+
+methods <- c("SumScore", "SEM", "SAM", "RGCCA", "LS-LV")
+observations <- seq(50, 200, by = 10)
+repeats <- 1:100
+
+# Covert the data type
+results_long <- melt(results_out1, varnames = c("Method", "Observations", "Repeat"), value.name = "Error")
+
+# Name the method and n. of observations
+results_long$Method <- factor(results_long$Method, labels = methods)
+results_long$Observations <- factor(results_long$Observations, levels = 1:16, labels = observations)
+
+# str(results_long)
+
+model <- lmer(Error ~ Method + Observations + (1 | Repeat), data = results_long)
+summary(model)
+anova(model)
+
+aov_model <- aov(Error ~ Method * Observations + Error(Repeat), data = results_long)
+summary(aov_model)
+
+
+
 # Part 1. Relationship between n. of observations and error
 # This is for simulation_results_0
 par(mfrow=c(1,1))
