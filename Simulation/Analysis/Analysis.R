@@ -14,13 +14,15 @@ load("simulation_results_20000.RData")
 library(reshape2)
 library(dplyr)
 library(lme4)
+library(emmeans)
+library(lmerTest)
 
 methods <- c("SumScore", "SEM", "SAM", "RGCCA", "LS-LV")
 observations <- seq(50, 200, by = 10)
 repeats <- 1:100
 
 # Covert the data type
-results_long <- melt(results_out1, varnames = c("Method", "Observations", "Repeat"), value.name = "Error")
+results_long <- melt(results_out2, varnames = c("Method", "Observations", "Repeat"), value.name = "Error")
 
 # Name the method and n. of observations
 results_long$Method <- factor(results_long$Method, labels = methods)
@@ -28,14 +30,15 @@ results_long$Observations <- factor(results_long$Observations, levels = 1:16, la
 
 # str(results_long)
 
-model <- lmer(Error ~ Method + Observations + (1 | Repeat), data = results_long)
+model <- lmer(Error ~ Method * Observations + (1 | Repeat), data = results_long)
 summary(model)
 anova(model)
 
-aov_model <- aov(Error ~ Method * Observations + Error(Repeat), data = results_long)
-summary(aov_model)
+emm_method <- emmeans(model, ~ Method)
+pairs(emm_method)
 
-
+emm_obs <- emmeans(model, ~ Observations)
+pairs(emm_obs)
 
 # Part 1. Relationship between n. of observations and error
 # This is for simulation_results_0
@@ -52,7 +55,7 @@ plot_boxplot <- function(data, title) {
 
 # Select a target sample size
 # This is for simulation_results_0
-target_sample_size <- 100
+target_sample_size <- 200
 sample_size_col <- (target_sample_size - 50) / 10 + 1 
 data1 <- log10(results_out1[, sample_size_col, ])
 data2 <- log10(results_out2[, sample_size_col, ])
@@ -65,11 +68,11 @@ plot_boxplot(data2, "Error2")
 # 3. Perform ANOVA
 # Here we excluded RGCCA, you can also include it
 # Data preparation
-dat <- results_out2[, sample_size_col, ]
+dat <- results_out1[, sample_size_col, ]
 error_matrix <- rbind(dat[1:3,],dat[5,])
 rownames(error_matrix) <- c("sumscore", "sem", "sam", "lslv")
 error_data <- data.frame(
-  Method = rep(rownames(error_matrix), each = max_j),
+  Method = rep(rownames(error_matrix), each = 100),
   Error = as.vector(t(error_matrix))
 )
 error_data$Method <- factor(error_data$Method, levels = c("sumscore", "sem", "sam", "lslv"))
